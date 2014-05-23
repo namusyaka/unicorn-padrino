@@ -2,17 +2,15 @@ require "unicorn/padrino/version"
 require "unicorn"
 require "unicorn/launcher"
 
-module Padrino
-  class Server
-    # Avoid writing pid file by Padrino::Server because this processing will be executed by Unicorn
-    def write_pid
-      return if options[:server].to_s == "unicorn" 
-      super
-    end
-
-    Handlers.insert(Handlers.length.pred, :unicorn)
+module PadrinoServer
+  # Avoid writing pid file by Padrino::Server because this processing will be executed by Unicorn
+  def write_pid
+    return if options[:server].to_s == "unicorn" 
+    super
   end
 end
+Padrino::Server.send(:prepend, PadrinoServer)
+Padrino::Server::Handlers.insert(Padrino::Server::Handlers.length.pred, :unicorn)
 
 module Rack::Handler
   class Unicorn
